@@ -1,4 +1,4 @@
-name: pluginpacks
+name: plugin-packs
 version: '1.0-SNAPSHOT'
 main: dev.akarah.pluginpacks.Main
 bootstrapper: dev.akarah.pluginpacks.Bootstrapper

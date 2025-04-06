@@ -1,4 +1,12 @@
 package dev.akarah.pluginpacks;
 
-public class Bootstrapper {
+import io.papermc.paper.plugin.bootstrap.BootstrapContext;
+import io.papermc.paper.plugin.bootstrap.PluginBootstrap;
+import org.jetbrains.annotations.NotNull;
+
+public class Bootstrapper implements PluginBootstrap {
+    @Override
+    public void bootstrap(@NotNull BootstrapContext bootstrapContext) {
+
+    }
 }
