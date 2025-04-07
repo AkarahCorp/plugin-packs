@@ -4,9 +4,9 @@ import net.kyori.adventure.key.Key;
 import net.kyori.adventure.key.KeyPattern;
 import org.jetbrains.annotations.NotNull;
 
-public record PluginKey<T>(String namespace, String value) implements Key {
-    public static <T> PluginKey<T> create(String namespace, String value) {
-        return new PluginKey<>(namespace, value);
+public record PluginNamespace<T>(String namespace) implements Key {
+    public static <T> PluginNamespace<T> create(String namespace) {
+        return new PluginNamespace<>(namespace);
     }
 
     @KeyPattern.Namespace
@@ -18,11 +18,11 @@ public record PluginKey<T>(String namespace, String value) implements Key {
     @KeyPattern.Value
     @Override
     public @NotNull String value() {
-        return this.value;
+        return this.namespace;
     }
 
     @Override
     public @NotNull String asString() {
-        return this.namespace + ":" + this.value;
+        return this.namespace;
     }
 }

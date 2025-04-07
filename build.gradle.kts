@@ -23,7 +23,7 @@ repositories {
 
 dependencies {
     compileOnly("io.papermc.paper:paper-api:1.21.4-R0.1-SNAPSHOT")
-    implementation("com.mojang:datafixerupper:6.0.8")
+    compileOnly("com.mojang:datafixerupper:8.0.16")
 }
 
 tasks.runServer {
