@@ -7,6 +7,6 @@ import org.jetbrains.annotations.NotNull;
 public class Bootstrapper implements PluginBootstrap {
     @Override
     public void bootstrap(@NotNull BootstrapContext bootstrapContext) {
-
+        
     }
 }
