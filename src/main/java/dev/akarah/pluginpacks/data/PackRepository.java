@@ -131,5 +131,9 @@ public final class PackRepository {
             return Optional.of(this.registry.get(key));
         }
 
+        @Override
+        public String toString() {
+            return this.registry.toString();
+        }
     }
 }

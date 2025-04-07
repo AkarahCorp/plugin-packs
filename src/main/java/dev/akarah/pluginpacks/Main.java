@@ -1,10 +1,6 @@
 package dev.akarah.pluginpacks;
 
 import dev.akarah.pluginpacks.data.PackRepository;
-import dev.akarah.pluginpacks.data.PluginNamespace;
-import dev.akarah.pluginpacks.values.ValueProvider;
-import dev.akarah.pluginpacks.values.ValueProviderRegistry;
-import dev.akarah.pluginpacks.values.number.ConstantNumber;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public final class Main extends JavaPlugin {
@@ -20,18 +16,22 @@ public final class Main extends JavaPlugin {
 
         INSTANCE = this;
 
-        ValueProviderRegistry.getInstance().register(ConstantNumber.TYPE, ConstantNumber.CODEC);
-
+//        var rg = MultiTypeRegistry.getInstance().register(PluginNamespace.<Example>create("examples"),
+//                TypeRegistry.create(ExampleType.CODEC));
+//        rg.register(ExInstance.TYPE, ExInstance.CODEC.xmap(x -> x, x -> (ExInstance) x));
+//
+//        PackRepository.getInstance().lazyLoadRegistries();
+//
+//        var examplesCodec = rg.codec();
+//        PackRepository.getInstance().addRegistry(
+//                PluginNamespace.create("examples"),
+//                PackRepository.RegistryInstance.create(examplesCodec, Example.class)
+//        );
+//
+//        System.out.println(
+//                PackRepository.getInstance().getRegistry(PluginNamespace.create("examples"))
+//        );
         PackRepository.getInstance().lazyLoadRegistries();
-
-        PackRepository.getInstance().addRegistry(
-                PluginNamespace.create("numbers"),
-                PackRepository.RegistryInstance.create(ValueProvider.UNPARAMETERIZED_CODEC, ValueProvider.class)
-        );
-
-        System.out.println(
-                PackRepository.getInstance().getRegistry(PluginNamespace.create("numbers"))
-        );
     }
 
     @Override
