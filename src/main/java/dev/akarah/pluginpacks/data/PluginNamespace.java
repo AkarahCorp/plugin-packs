@@ -1,10 +1,9 @@
 package dev.akarah.pluginpacks.data;
 
-import net.kyori.adventure.key.Key;
 import net.kyori.adventure.key.KeyPattern;
 import org.jetbrains.annotations.NotNull;
 
-public record PluginNamespace<T>(String namespace) implements Key {
+public record PluginNamespace<T>(String namespace) {
     public static <T> PluginNamespace<T> create(String namespace) {
         return new PluginNamespace<>(namespace);
     }
@@ -15,14 +14,8 @@ public record PluginNamespace<T>(String namespace) implements Key {
         return this.namespace;
     }
 
-    @KeyPattern.Value
     @Override
-    public @NotNull String value() {
-        return this.namespace;
-    }
-
-    @Override
-    public @NotNull String asString() {
+    public String toString() {
         return this.namespace;
     }
 }

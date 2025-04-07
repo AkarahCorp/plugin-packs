@@ -16,22 +16,7 @@ public final class Main extends JavaPlugin {
 
         INSTANCE = this;
 
-//        var rg = MultiTypeRegistry.getInstance().register(PluginNamespace.<Example>create("examples"),
-//                TypeRegistry.create(ExampleType.CODEC));
-//        rg.register(ExInstance.TYPE, ExInstance.CODEC.xmap(x -> x, x -> (ExInstance) x));
-//
-//        PackRepository.getInstance().lazyLoadRegistries();
-//
-//        var examplesCodec = rg.codec();
-//        PackRepository.getInstance().addRegistry(
-//                PluginNamespace.create("examples"),
-//                PackRepository.RegistryInstance.create(examplesCodec, Example.class)
-//        );
-//
-//        System.out.println(
-//                PackRepository.getInstance().getRegistry(PluginNamespace.create("examples"))
-//        );
-        PackRepository.getInstance().lazyLoadRegistries();
+        PackRepository.getInstance().reloadRegistries();
     }
 
     @Override

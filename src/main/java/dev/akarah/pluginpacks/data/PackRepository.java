@@ -10,7 +10,6 @@ import org.jspecify.annotations.NonNull;
 
 import java.io.IOException;
 import java.nio.file.Files;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
@@ -19,24 +18,44 @@ import java.util.logging.Level;
 public final class PackRepository {
     private static final PackRepository INSTANCE = new PackRepository();
 
-    ConcurrentHashMap<String, PluginPack> repositories = new ConcurrentHashMap<>();
-    ConcurrentHashMap<PluginNamespace<Object>, RegistryInstance<Object>> instances = new ConcurrentHashMap<>();
+    ConcurrentHashMap<PluginNamespace<?>, PluginPack> repositories = new ConcurrentHashMap<>();
+    ConcurrentHashMap<PluginNamespace<?>, RegistryInstance<?>> instances = new ConcurrentHashMap<>();
 
     public static PackRepository getInstance() {
         return PackRepository.INSTANCE;
     }
 
+    public void reloadRegistries() {
+        this.lazyLoadRegistries();
+
+        synchronized (this) {
+            for (var registry : this.instances.entrySet()) {
+                registry.getValue().registry.clear();
+
+                for (Map.Entry<String, JsonElement> entry : this.repositories.get(registry.getKey()).map.entrySet()) {
+                    try {
+                        var finalValue = registry.getValue().codec.decode(JsonOps.INSTANCE, entry.getValue()).getOrThrow().getFirst();
+                        registry.getValue().insert(NamespacedKey.fromString(entry.getKey()), finalValue);
+                    } catch (IllegalStateException e) {
+                        Main.getInstance().getLogger().log(Level.SEVERE, "Failed to load entry " + entry.getKey() + " for registry " + registry.getKey() + ", see error:");
+                        Main.getInstance().getLogger().log(Level.SEVERE, e.getMessage());
+                    }
+                }
+            }
+        }
+    }
+
     @SuppressWarnings("unchecked")
     public <S> void addRegistry(PluginNamespace<S> name, RegistryInstance<S> registryInstance) {
-        instances.put((PluginNamespace<Object>) name, (RegistryInstance<Object>) registryInstance);
+        instances.put(name, registryInstance);
 
-        if (this.repositories.containsKey(name.asString())) {
-            for (Map.Entry<String, JsonElement> entry : this.repositories.get(name.asString()).map.entrySet()) {
+        if (this.repositories.containsKey(name)) {
+            for (Map.Entry<String, JsonElement> entry : this.repositories.get(name).map.entrySet()) {
                 try {
                     var finalValue = registryInstance.codec.decode(JsonOps.INSTANCE, entry.getValue()).getOrThrow().getFirst();
                     registryInstance.insert(NamespacedKey.fromString(entry.getKey()), finalValue);
                 } catch (IllegalStateException e) {
-                    Main.getInstance().getLogger().log(Level.SEVERE, "Failed to load entry " + entry.getKey() + " for registry " + name.asString() + ", see error:");
+                    Main.getInstance().getLogger().log(Level.SEVERE, "Failed to load entry " + entry.getKey() + " for registry " + name + ", see error:");
                     Main.getInstance().getLogger().log(Level.SEVERE, e.getMessage());
                 }
             }
@@ -60,7 +79,7 @@ public final class PackRepository {
                                 try {
                                     var relative = pluginPath.relativize(path);
 
-                                    var registry = relative.getName(0).toString();
+                                    var registry = PluginNamespace.create(relative.getName(0).toString());
 
                                     System.out.println("registry: " + registry);
                                     System.out.println("relative: " + relative);
@@ -73,7 +92,7 @@ public final class PackRepository {
                                     var jsonContents = new Gson().fromJson(contents, JsonElement.class);
 
                                     var pluginPack = this.repositories.computeIfAbsent(registry, key -> new PluginPack());
-                                    if(jsonContents != null) {
+                                    if (jsonContents != null) {
                                         pluginPack.map.put(registryEntryName, jsonContents);
                                     }
 
