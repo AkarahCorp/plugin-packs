@@ -30,12 +30,12 @@ public final class PackRepository {
 
         synchronized (this) {
             for (var registry : this.instances.entrySet()) {
-                var map = this.repositories.get(registry.getKey()).map;
-                if (map == null) {
+                var repository = this.repositories.get(registry.getKey());
+                if (repository == null) {
                     continue;
                 }
-                
-                var entries = map.entrySet();
+
+                var entries = repository.map.entrySet();
                 registry.getValue().registry.clear();
 
                 for (Map.Entry<String, JsonElement> entry : entries) {
