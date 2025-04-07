@@ -4,3 +4,4 @@ main: dev.akarah.pluginpacks.Main
 bootstrapper: dev.akarah.pluginpacks.Bootstrapper
 api-version: '1.21'
 prefix: plugin-packs
+folia-supported: true

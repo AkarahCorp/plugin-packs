@@ -3,10 +3,10 @@ package dev.akarah.pluginpacks.multientry;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 
-import java.util.HashMap;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class TypeRegistry<E extends TypeRegistrySupported<ET>, ET> {
-    HashMap<ET, MapCodec<E>> map = new HashMap<>();
+    ConcurrentHashMap<ET, MapCodec<E>> map = new ConcurrentHashMap<>();
     Codec<ET> entryTypeCodec;
     String dispatchKey;
 

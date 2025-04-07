@@ -13,13 +13,14 @@ import java.nio.file.Files;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
 
 public final class PackRepository {
     private static final PackRepository INSTANCE = new PackRepository();
 
-    HashMap<String, PluginPack> repositories = new HashMap<>();
-    HashMap<PluginNamespace<Object>, RegistryInstance<Object>> instances = new HashMap<>();
+    ConcurrentHashMap<String, PluginPack> repositories = new ConcurrentHashMap<>();
+    ConcurrentHashMap<PluginNamespace<Object>, RegistryInstance<Object>> instances = new ConcurrentHashMap<>();
 
     public static PackRepository getInstance() {
         return PackRepository.INSTANCE;
@@ -72,7 +73,9 @@ public final class PackRepository {
                                     var jsonContents = new Gson().fromJson(contents, JsonElement.class);
 
                                     var pluginPack = this.repositories.computeIfAbsent(registry, key -> new PluginPack());
-                                    pluginPack.map.put(registryEntryName, jsonContents);
+                                    if(jsonContents != null) {
+                                        pluginPack.map.put(registryEntryName, jsonContents);
+                                    }
 
                                 } catch (IOException error) {
                                     Main.getInstance().getLogger().log(Level.SEVERE, "An I/O error occurred while loading plugin packs, see below:");
@@ -105,13 +108,13 @@ public final class PackRepository {
 
     public static final class RegistryInstance<S> {
         Codec<S> codec;
-        HashMap<NamespacedKey, S> registry;
+        ConcurrentHashMap<NamespacedKey, S> registry;
         Class<S> sClass;
 
         public static <S> @NonNull RegistryInstance<S> create(@NonNull Codec<S> codec, @NonNull Class<S> sClass) {
             var instance = new RegistryInstance<S>();
             instance.codec = codec;
-            instance.registry = new HashMap<>();
+            instance.registry = new ConcurrentHashMap<>();
             instance.sClass = sClass;
             return instance;
         }

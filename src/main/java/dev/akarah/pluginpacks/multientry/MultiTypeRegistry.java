@@ -5,10 +5,11 @@ import dev.akarah.pluginpacks.data.PluginNamespace;
 
 import java.util.HashMap;
 import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class MultiTypeRegistry {
     static MultiTypeRegistry INSTANCE = new MultiTypeRegistry();
-    HashMap<PluginNamespace<?>, TypeRegistry<?, ?>> instances = new HashMap<>();
+    ConcurrentHashMap<PluginNamespace<?>, TypeRegistry<?, ?>> instances = new ConcurrentHashMap<>();
 
     public static MultiTypeRegistry getInstance() {
         return INSTANCE;
