@@ -9,7 +9,7 @@ version = "1.0-SNAPSHOT"
 
 repositories {
     mavenCentral()
-    
+
     maven {
         name = "papermc-repo"
         url = uri("https://repo.papermc.io/repository/maven-public/")
@@ -59,5 +59,17 @@ tasks.processResources {
     filteringCharset = "UTF-8"
     filesMatching("paper-plugin.yml") {
         expand(props)
+    }
+}
+
+publishing {
+    publications {
+        create<MavenPublication>("maven") {
+            groupId = "dev.akarah"
+            artifactId = "plugin-packs"
+            version = "1.0-SNAPSHOT"
+
+            from(components["java"])
+        }
     }
 }
