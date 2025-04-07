@@ -32,6 +32,8 @@ public final class PackRepository {
             for (var registry : this.instances.entrySet()) {
                 var repository = this.repositories.get(registry.getKey());
                 if (repository == null) {
+                    Main.getInstance().getLogger().log(Level.SEVERE, "A pluginpack tried to access the registry `" + registry.getKey() + "` which does not exist.");
+                    Main.getInstance().getLogger().log(Level.SEVERE, "The data will be skipped.");
                     continue;
                 }
 
@@ -42,7 +44,7 @@ public final class PackRepository {
                     try {
                         var finalValue = registry.getValue().codec.decode(JsonOps.INSTANCE, entry.getValue()).getOrThrow().getFirst();
                         registry.getValue().insert(NamespacedKey.fromString(entry.getKey()), finalValue);
-                    } catch (IllegalStateException e) {
+                    } catch (Exception e) {
                         Main.getInstance().getLogger().log(Level.SEVERE, "Failed to load entry " + entry.getKey() + " for registry " + registry.getKey() + ", see error:");
                         Main.getInstance().getLogger().log(Level.SEVERE, e.getMessage());
                     }
@@ -60,7 +62,7 @@ public final class PackRepository {
                 try {
                     var finalValue = registryInstance.codec.decode(JsonOps.INSTANCE, entry.getValue()).getOrThrow().getFirst();
                     registryInstance.insert(NamespacedKey.fromString(entry.getKey()), finalValue);
-                } catch (IllegalStateException e) {
+                } catch (Exception e) {
                     Main.getInstance().getLogger().log(Level.SEVERE, "Failed to load entry " + entry.getKey() + " for registry " + name + ", see error:");
                     Main.getInstance().getLogger().log(Level.SEVERE, e.getMessage());
                 }
@@ -87,8 +89,6 @@ public final class PackRepository {
 
                                     var registry = PluginNamespace.create(relative.getName(0).toString());
 
-                                    System.out.println("registry: " + registry);
-                                    System.out.println("relative: " + relative);
                                     var registryEntryName = relative.getNameCount() > 1
                                             ? relative.subpath(1, relative.getNameCount()).toString().replaceFirst("/", ":")
                                             : path.subpath(2, 3).toString();
