@@ -30,9 +30,10 @@ public final class PackRepository {
 
         synchronized (this) {
             for (var registry : this.instances.entrySet()) {
+                var entries = this.repositories.get(registry.getKey()).map.entrySet();
                 registry.getValue().registry.clear();
 
-                for (Map.Entry<String, JsonElement> entry : this.repositories.get(registry.getKey()).map.entrySet()) {
+                for (Map.Entry<String, JsonElement> entry : entries) {
                     try {
                         var finalValue = registry.getValue().codec.decode(JsonOps.INSTANCE, entry.getValue()).getOrThrow().getFirst();
                         registry.getValue().insert(NamespacedKey.fromString(entry.getKey()), finalValue);
