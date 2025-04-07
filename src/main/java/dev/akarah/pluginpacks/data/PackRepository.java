@@ -10,6 +10,7 @@ import org.jspecify.annotations.NonNull;
 
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
@@ -20,9 +21,15 @@ public final class PackRepository {
 
     ConcurrentHashMap<PluginNamespace<?>, PluginPack> repositories = new ConcurrentHashMap<>();
     ConcurrentHashMap<PluginNamespace<?>, RegistryInstance<?>> instances = new ConcurrentHashMap<>();
+    Path dataDirectory;
 
     public static PackRepository getInstance() {
         return PackRepository.INSTANCE;
+    }
+
+    public PackRepository dataDirectory(Path path) {
+        this.dataDirectory = path;
+        return this;
     }
 
     public void reloadRegistries() {
@@ -73,7 +80,7 @@ public final class PackRepository {
         synchronized (this) {
             this.repositories.clear();
 
-            var dataFolder = Main.INSTANCE.getDataFolder();
+            var dataFolder = this.dataDirectory.toFile();
             var pluginPackDirectories = dataFolder.listFiles();
 
             assert pluginPackDirectories != null;
@@ -114,7 +121,6 @@ public final class PackRepository {
                         Main.getInstance().getLogger().log(Level.SEVERE, error.toString());
                     }
 
-                    System.out.println(this.repositories);
                 }
             }
         }

@@ -1,6 +1,5 @@
 package dev.akarah.pluginpacks;
 
-import dev.akarah.pluginpacks.data.PackRepository;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public final class Main extends JavaPlugin {
@@ -16,8 +15,6 @@ public final class Main extends JavaPlugin {
 
         INSTANCE = this;
 
-        PackRepository.getInstance().reloadRegistries();
-        System.out.println(PackRepository.getInstance());
 
     }
 
