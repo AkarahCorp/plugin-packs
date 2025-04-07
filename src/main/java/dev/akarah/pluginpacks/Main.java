@@ -17,6 +17,8 @@ public final class Main extends JavaPlugin {
         INSTANCE = this;
 
         PackRepository.getInstance().reloadRegistries();
+        System.out.println(PackRepository.getInstance());
+
     }
 
     @Override
