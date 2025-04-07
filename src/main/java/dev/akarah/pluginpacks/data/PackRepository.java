@@ -26,7 +26,7 @@ public final class PackRepository {
     }
 
     public void reloadRegistries() {
-        this.lazyLoadRegistries();
+        this.lazyLoadRegistriesFromFiles();
 
         synchronized (this) {
             for (var registry : this.instances.entrySet()) {
@@ -53,7 +53,6 @@ public final class PackRepository {
         }
     }
 
-    @SuppressWarnings("unchecked")
     public <S> void addRegistry(PluginNamespace<S> name, RegistryInstance<S> registryInstance) {
         instances.put(name, registryInstance);
 
@@ -70,49 +69,53 @@ public final class PackRepository {
         }
     }
 
-    public void lazyLoadRegistries() {
-        var dataFolder = Main.INSTANCE.getDataFolder();
-        var pluginPackDirectories = dataFolder.listFiles();
+    public void lazyLoadRegistriesFromFiles() {
+        synchronized (this) {
+            this.repositories.clear();
 
-        assert pluginPackDirectories != null;
+            var dataFolder = Main.INSTANCE.getDataFolder();
+            var pluginPackDirectories = dataFolder.listFiles();
 
-        for (var pluginPackDir : pluginPackDirectories) {
-            if (pluginPackDir.isDirectory()) {
-                var pluginPath = pluginPackDir.toPath();
+            assert pluginPackDirectories != null;
 
-                try (var paths = Files.walk(pluginPath)) {
-                    paths.filter(Files::isRegularFile)
-                            .filter(path -> path.toString().endsWith(".json"))
-                            .forEach(path -> {
-                                try {
-                                    var relative = pluginPath.relativize(path);
+            for (var pluginPackDir : pluginPackDirectories) {
+                if (pluginPackDir.isDirectory()) {
+                    var pluginPath = pluginPackDir.toPath();
 
-                                    var registry = PluginNamespace.create(relative.getName(0).toString());
+                    try (var paths = Files.walk(pluginPath)) {
+                        paths.filter(Files::isRegularFile)
+                                .filter(path -> path.toString().endsWith(".json"))
+                                .forEach(path -> {
+                                    try {
+                                        var relative = pluginPath.relativize(path);
 
-                                    var registryEntryName = relative.getNameCount() > 1
-                                            ? relative.subpath(1, relative.getNameCount()).toString().replaceFirst("/", ":")
-                                            : path.subpath(2, 3).toString();
-                                    registryEntryName = registryEntryName.replace(".json", "");
+                                        var registry = PluginNamespace.create(relative.getName(0).toString());
 
-                                    var contents = Files.readString(path);
-                                    var jsonContents = new Gson().fromJson(contents, JsonElement.class);
+                                        var registryEntryName = relative.getNameCount() > 1
+                                                ? relative.subpath(1, relative.getNameCount()).toString().replaceFirst("/", ":")
+                                                : path.subpath(2, 3).toString();
+                                        registryEntryName = registryEntryName.replace(".json", "");
 
-                                    var pluginPack = this.repositories.computeIfAbsent(registry, key -> new PluginPack());
-                                    if (jsonContents != null) {
-                                        pluginPack.map.put(registryEntryName, jsonContents);
+                                        var contents = Files.readString(path);
+                                        var jsonContents = new Gson().fromJson(contents, JsonElement.class);
+
+                                        var pluginPack = this.repositories.computeIfAbsent(registry, key -> new PluginPack());
+                                        if (jsonContents != null) {
+                                            pluginPack.map.put(registryEntryName, jsonContents);
+                                        }
+
+                                    } catch (IOException error) {
+                                        Main.getInstance().getLogger().log(Level.SEVERE, "An I/O error occurred while loading plugin packs, see below:");
+                                        Main.getInstance().getLogger().log(Level.SEVERE, error.toString());
                                     }
+                                });
+                    } catch (IOException error) {
+                        Main.getInstance().getLogger().log(Level.SEVERE, "An I/O error occurred while loading plugin packs, see below:");
+                        Main.getInstance().getLogger().log(Level.SEVERE, error.toString());
+                    }
 
-                                } catch (IOException error) {
-                                    Main.getInstance().getLogger().log(Level.SEVERE, "An I/O error occurred while loading plugin packs, see below:");
-                                    Main.getInstance().getLogger().log(Level.SEVERE, error.toString());
-                                }
-                            });
-                } catch (IOException error) {
-                    Main.getInstance().getLogger().log(Level.SEVERE, "An I/O error occurred while loading plugin packs, see below:");
-                    Main.getInstance().getLogger().log(Level.SEVERE, error.toString());
+                    System.out.println(this.repositories);
                 }
-
-                System.out.println(this.repositories);
             }
         }
 
