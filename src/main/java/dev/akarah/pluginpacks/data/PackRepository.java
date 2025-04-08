@@ -27,9 +27,12 @@ public final class PackRepository {
         return PackRepository.INSTANCE;
     }
 
-    public PackRepository dataDirectory(Path path) {
+    public void dataDirectory(Path path) {
         this.dataDirectory = path;
-        return this;
+    }
+
+    public Path getDataDirectory() {
+        return this.dataDirectory;
     }
 
     public void reloadRegistries() {
