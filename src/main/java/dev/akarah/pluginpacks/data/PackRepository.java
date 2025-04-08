@@ -83,7 +83,9 @@ public final class PackRepository {
             var dataFolder = this.dataDirectory.toFile();
             var pluginPackDirectories = dataFolder.listFiles();
 
-            assert pluginPackDirectories != null;
+            if(pluginPackDirectories == null) {
+                return;
+            }
 
             for (var pluginPackDir : pluginPackDirectories) {
                 if (pluginPackDir.isDirectory()) {
