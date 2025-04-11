@@ -14,7 +14,6 @@ import java.nio.file.Path;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.logging.Level;
 
 public final class PackRepository {
     private static final PackRepository INSTANCE = new PackRepository();
@@ -36,14 +35,16 @@ public final class PackRepository {
     }
 
     public void reloadRegistries() {
+        Main.logger().info("Reloading plugin pack registries...");
         this.lazyLoadRegistriesFromFiles();
+        Main.logger().info("Executing transformations from JSON to data...");
 
         synchronized (this) {
             for (var registry : this.instances.entrySet()) {
                 var repository = this.repositories.get(registry.getKey());
                 if (repository == null) {
-                    Main.getInstance().getLogger().log(Level.SEVERE, "A pluginpack tried to access the registry `" + registry.getKey() + "` which does not exist.");
-                    Main.getInstance().getLogger().log(Level.SEVERE, "The data will be skipped.");
+                    Main.logger().warn("A plugin pack tried to access the registry `{}` which does not exist.", registry.getKey());
+                    Main.logger().warn("The data will be skipped.");
                     continue;
                 }
 
@@ -55,12 +56,13 @@ public final class PackRepository {
                         var finalValue = registry.getValue().codec.decode(JsonOps.INSTANCE, entry.getValue()).getOrThrow().getFirst();
                         registry.getValue().insert(NamespacedKey.fromString(entry.getKey()), finalValue);
                     } catch (Exception e) {
-                        Main.getInstance().getLogger().log(Level.SEVERE, "Failed to load entry " + entry.getKey() + " for registry " + registry.getKey() + ", see error:");
-                        Main.getInstance().getLogger().log(Level.SEVERE, e.getMessage());
+                        Main.logger().warn("Failed to compute entry {} for registry {}: {}", entry.getKey(), registry.getKey(), e.getMessage());
                     }
                 }
             }
         }
+
+        Main.logger().info("All valid registry entries are now loaded!");
     }
 
     public <S> void addRegistry(PluginNamespace<S> name, RegistryInstance<S> registryInstance) {
@@ -72,8 +74,8 @@ public final class PackRepository {
                     var finalValue = registryInstance.codec.decode(JsonOps.INSTANCE, entry.getValue()).getOrThrow().getFirst();
                     registryInstance.insert(NamespacedKey.fromString(entry.getKey()), finalValue);
                 } catch (Exception e) {
-                    Main.getInstance().getLogger().log(Level.SEVERE, "Failed to load entry " + entry.getKey() + " for registry " + name + ", see error:");
-                    Main.getInstance().getLogger().log(Level.SEVERE, e.getMessage());
+                    Main.logger().error("Failed to load entry {} for registry {}, see error:", entry.getKey(), name);
+                    Main.logger().error(e.getMessage());
                 }
             }
         }
@@ -81,17 +83,20 @@ public final class PackRepository {
 
     public void lazyLoadRegistriesFromFiles() {
         synchronized (this) {
+            Main.logger().info("Reloading registry cache from files...");
             this.repositories.clear();
 
             var dataFolder = this.dataDirectory.toFile();
             var pluginPackDirectories = dataFolder.listFiles();
 
             if(pluginPackDirectories == null) {
+                Main.logger().warn("The plugin-packs directory was not found in plugins folder, please consider creating it to register entries.");
                 return;
             }
 
             for (var pluginPackDir : pluginPackDirectories) {
                 if (pluginPackDir.isDirectory()) {
+                    Main.logger().info("Loading plugin pack at /{}/...", pluginPackDir.getName());
                     var pluginPath = pluginPackDir.toPath();
 
                     try (var paths = Files.walk(pluginPath)) {
@@ -115,21 +120,19 @@ public final class PackRepository {
                                         if (jsonContents != null) {
                                             pluginPack.map.put(registryEntryName, jsonContents);
                                         }
-
                                     } catch (IOException error) {
-                                        Main.getInstance().getLogger().log(Level.SEVERE, "An I/O error occurred while loading plugin packs, see below:");
-                                        Main.getInstance().getLogger().log(Level.SEVERE, error.toString());
+                                        Main.logger().error("An I/O error occurred while loading pack entry at `{}`: {}", path, error.toString());
                                     }
                                 });
                     } catch (IOException error) {
-                        Main.getInstance().getLogger().log(Level.SEVERE, "An I/O error occurred while loading plugin packs, see below:");
-                        Main.getInstance().getLogger().log(Level.SEVERE, error.toString());
+                        Main.logger().error("An I/O error occurred while loading plugin packs: {}", error.toString());
                     }
-
+                } else {
+                    Main.logger().warn("Non-directory file {} found in plugin-packs directory, it will be skipped.", (Object) pluginPackDirectories);
                 }
             }
         }
-
+        Main.logger().info("Finished loading registries from files!");
     }
 
     @SuppressWarnings("unchecked")
