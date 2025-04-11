@@ -57,7 +57,7 @@ public final class PackRepository {
                         registry.getValue().insert(NamespacedKey.fromString(entry.getKey()), finalValue);
                     } catch (Exception e) {
                         Main.logger().error("Failed to compute entry {} for registry {}", entry.getKey(), registry.getKey());
-                        Main.logger().error(e.toString());
+                        Main.logger().error("Exception: ", e);
                     }
                 }
             }
@@ -76,7 +76,7 @@ public final class PackRepository {
                     registryInstance.insert(NamespacedKey.fromString(entry.getKey()), finalValue);
                 } catch (Exception e) {
                     Main.logger().error("Failed to load entry {} for registry {}", entry.getKey(), name);
-                    Main.logger().error(e.toString());
+                    Main.logger().error("Exception: ", e);
                 }
             }
         }
