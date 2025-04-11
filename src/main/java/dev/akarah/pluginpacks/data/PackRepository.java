@@ -13,6 +13,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 public final class PackRepository {
@@ -90,7 +91,7 @@ public final class PackRepository {
             var dataFolder = this.dataDirectory.toFile();
             var pluginPackDirectories = dataFolder.listFiles();
 
-            if(pluginPackDirectories == null) {
+            if (pluginPackDirectories == null) {
                 Main.logger().warn("The plugin-packs directory was not found in plugins folder, please consider creating it to register entries.");
                 return;
             }
@@ -175,6 +176,10 @@ public final class PackRepository {
                 return Optional.empty();
             }
             return Optional.of(this.registry.get(key));
+        }
+
+        public Set<Map.Entry<NamespacedKey, S>> entries() {
+            return this.registry.entrySet();
         }
 
         @Override
