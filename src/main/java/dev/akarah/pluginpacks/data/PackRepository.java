@@ -56,7 +56,8 @@ public final class PackRepository {
                         var finalValue = registry.getValue().codec.decode(JsonOps.INSTANCE, entry.getValue()).getOrThrow().getFirst();
                         registry.getValue().insert(NamespacedKey.fromString(entry.getKey()), finalValue);
                     } catch (Exception e) {
-                        Main.logger().warn("Failed to compute entry {} for registry {}: {}", entry.getKey(), registry.getKey(), e.getMessage());
+                        Main.logger().error("Failed to compute entry {} for registry {}", entry.getKey(), registry.getKey());
+                        Main.logger().error(e.toString());
                     }
                 }
             }
@@ -74,8 +75,8 @@ public final class PackRepository {
                     var finalValue = registryInstance.codec.decode(JsonOps.INSTANCE, entry.getValue()).getOrThrow().getFirst();
                     registryInstance.insert(NamespacedKey.fromString(entry.getKey()), finalValue);
                 } catch (Exception e) {
-                    Main.logger().error("Failed to load entry {} for registry {}, see error:", entry.getKey(), name);
-                    Main.logger().error(e.getMessage());
+                    Main.logger().error("Failed to load entry {} for registry {}", entry.getKey(), name);
+                    Main.logger().error(e.toString());
                 }
             }
         }
