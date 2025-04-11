@@ -1,5 +1,6 @@
 package dev.akarah.pluginpacks;
 
+import dev.akarah.pluginpacks.data.PackRepository;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.slf4j.Logger;
 
@@ -10,7 +11,10 @@ public final class Main extends JavaPlugin {
     public static Main getInstance() {
         return INSTANCE;
     }
-    public static Logger logger() { return LOGGER; }
+
+    public static Logger logger() {
+        return LOGGER;
+    }
 
     @Override
     public void onEnable() {
@@ -18,6 +22,8 @@ public final class Main extends JavaPlugin {
 
         INSTANCE = this;
         LOGGER = this.getSLF4JLogger();
+
+        PackRepository.getInstance().reloadRegistries();
 
 
     }

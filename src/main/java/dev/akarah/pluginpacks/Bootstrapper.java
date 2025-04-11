@@ -13,7 +13,6 @@ public class Bootstrapper implements PluginBootstrap {
         Main.LOGGER = bootstrapContext.getLogger();
 
         PackRepository.getInstance().dataDirectory(bootstrapContext.getDataDirectory());
-        PackRepository.getInstance().reloadRegistries();
 
         bootstrapContext.getLifecycleManager().registerEventHandler(LifecycleEvents.COMMANDS, event -> ReloadCommand.register(event.registrar()));
     }
